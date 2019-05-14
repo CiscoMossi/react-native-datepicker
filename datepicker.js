@@ -32,7 +32,8 @@ class DatePicker extends Component {
       date: this.getDate(),
       modalVisible: false,
       animatedHeight: new Animated.Value(0),
-      allowPointerEvents: true
+      allowPointerEvents: true,
+      dateString: this.props.date
     };
 
     this.getDate = this.getDate.bind(this);
@@ -149,13 +150,14 @@ class DatePicker extends Component {
 
   getDateStr(date = this.props.date) {
     const {mode, format = FORMATS[mode]} = this.props;
+    const { dateString } = this.state
 
     const dateInstance = date instanceof Date
       ? date
       : this.getDate(date);
 
     if (typeof this.props.getDateStr === 'function') {
-      return this.props.getDateStr(dateInstance);
+      return this.props.getDateStr(dateInstance, dateString);
     }
 
     return Moment(dateInstance).format(format);
@@ -199,8 +201,12 @@ class DatePicker extends Component {
 
   onDatePicked({action, year, month, day}) {
     if (action !== DatePickerAndroid.dismissedAction) {
+      const dateString = Moment.utc([year, month, day]).format(this.props.format)
+      const date = new Date(year, month, day)
+
       this.setState({
-        date: new Date(year, month, day)
+        date,
+        dateString,
       });
       this.datePicked();
     } else {
